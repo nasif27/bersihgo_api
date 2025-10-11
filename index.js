@@ -38,7 +38,7 @@ app.get('/users', async (req, res) => {
 
     try {
         const users = await client.query('SELECT * FROM users;');
-        res.json(users);
+        res.json(users.rows);
     } catch (error) {
         console.log('Error:', error.message);
         res.status(500).json({ error: error.message });
