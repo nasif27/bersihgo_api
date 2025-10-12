@@ -3,6 +3,7 @@ let express = require('express');
 let path = require('path');
 const cors = require('cors');
 const { Pool } = require('pg');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const { DATABASE_URL } = process.env;
 
@@ -31,7 +32,36 @@ async function getPostgresVersion() {
 
 getPostgresVersion();
 
+// AUTH ENDPOINT
+// user sign up endpoint
+app.post('/signup', async (req, res) => {
+    const client = await pool.connect();
 
+    try {
+        const { username, email, phone_number, password } = req.body;
+    
+        const hashedPassword = await bcrypt.hash(password, 12);
+    
+        const userExists = await client.query('SELECT * FROM users WHERE username = $1 OR email = $2 OR phone_number = $3', [username, email, phone_number]);
+    
+        if (userExists.rows.length > 0) {
+            return res.status(400).json({ message: 'This user already exist' });
+        }
+
+        await client.query('INSERT INTO users (username, email, phone_number, password) VALUES ($1, $2, $3, $4)', [username, email, phone_number, hashedPassword]);
+
+        res.status(200).json({ message: 'User has been registered successfully' });
+    } catch (error) {
+        console.log('Error:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
+
+
+
+// REQUEST ENDPOINT
 // endpoint
 app.get('/users', async (req, res) => {
     const client = await pool.connect();
