@@ -48,7 +48,7 @@ app.post('/signup', async (req, res) => {
             return res.status(400).json({ message: 'This user already exist' });
         }
 
-        await client.query('INSERT INTO users (username, email, phone_number, password) VALUES ($1, $2, $3, $4)', [username, email, phone_number, hashedPassword]);
+        await client.query('INSERT INTO users (username, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, NOW())', [username, email, phone_number, hashedPassword]);
 
         res.status(200).json({ message: 'User has been registered successfully' });
     } catch (error) {
