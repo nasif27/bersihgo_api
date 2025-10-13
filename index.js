@@ -41,7 +41,7 @@ getPostgresVersion();
 // })
 
 // user sign up endpoint
-app.post(':options/signup', async (req, res) => {
+app.post('/:options/signup', async (req, res) => {
     const { options } = req.params;
     const client = await pool.connect();
 
