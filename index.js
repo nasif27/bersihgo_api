@@ -59,7 +59,7 @@ app.post('/:options/signup', async (req, res) => {
             res.status(400).json({ message: `This ${options} already exist` }, adminUserExists.rows[0]);
         }
 
-        await client.query(`INSERT INTO ${options}s (username, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, NOW() RETURNING *)`, [username, email, phone_number, hashedPassword]);
+        await client.query(`INSERT INTO ${options}s (username, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *`, [username, email, phone_number, hashedPassword]);
 
         res.status(200).json({ message: `The ${options} has been registered successfully` });
     } catch (error) {
