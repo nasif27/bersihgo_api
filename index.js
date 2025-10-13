@@ -61,7 +61,7 @@ app.post('/:options/signup', async (req, res) => {
 
         const registerResult = await client.query(`INSERT INTO ${options}s (username, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *`, [username, email, phone_number, hashedPassword]);
         
-        res.json(registerResult);
+        res.json(registerResult.rows[0]);
         // res.status(200).json({ message: `The ${options} has been registered successfully` });
     } catch (error) {
         console.log('Error:', error.message);
