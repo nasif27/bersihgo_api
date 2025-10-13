@@ -56,12 +56,13 @@ app.post('/:options/signup', async (req, res) => {
     
         if (adminUserExists.rows.length > 0) {
             // res.json(adminUserExists.rows[0]);
-            res.status(400).json({ message: `This ${options} already exist` }, adminUserExists.rows[0]);
+            res.status(400).json({ message: `This ${options} already exist` });
         }
 
-        await client.query(`INSERT INTO ${options}s (username, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *`, [username, email, phone_number, hashedPassword]);
-
-        res.status(200).json({ message: `The ${options} has been registered successfully` });
+        const registerResult = await client.query(`INSERT INTO ${options}s (username, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *`, [username, email, phone_number, hashedPassword]);
+        
+        res.json(registerResult);
+        // res.status(200).json({ message: `The ${options} has been registered successfully` });
     } catch (error) {
         console.log('Error:', error.message);
         res.status(500).json({ error: error.message });
