@@ -40,7 +40,7 @@ getPostgresVersion();
 //     const client
 // })
 
-// user sign up endpoint
+// admin & user sign up endpoint
 app.post('/:options/signup', async (req, res) => {
     const { options } = req.params;
     const client = await pool.connect();
@@ -71,7 +71,34 @@ app.post('/:options/signup', async (req, res) => {
     }
 });
 
+// admin & user sign in endpoint
+app.post('/:options/signin', async (req, res) => {
+    const { options } = req.params;
+    const client = await pool.connect();
 
+    try {
+        const { username, email, phone_number, password } = req.body;
+
+        // check admin or user existence
+        const adminUserExists = await client.query(`SELECT * FROM ${options}s WHERE username = $1 OR email = $2 OR phone_number = $3`, [username, email, phone_number]);
+
+        // if admin or user exists, store in a variable
+        const adminUser = adminUserExists.rows[0];
+
+        // if admin or user does not exist, return error
+        if (!adminUser) {
+            return res.status(400).json({ message: 'Incorrect username or email or phone number' });
+        }
+
+        // PART 2
+
+    } catch (error) {
+        console.log('Error:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
 
 // REQUEST ENDPOINT
 // endpoint
