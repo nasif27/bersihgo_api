@@ -4,8 +4,9 @@ let path = require('path');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const { DATABASE_URL } = process.env;
+const { DATABASE_URL, SECRET_KEY } = process.env;
 
 let app = express();
 app.use(cors());
@@ -73,7 +74,7 @@ app.post('/:options/signup', async (req, res) => {
 
 // admin & user sign in endpoint
 app.post('/:options/signin', async (req, res) => {
-    const { options } = req.params;
+    const { options } = req.params;     // admin or user
     const client = await pool.connect();
 
     try {
@@ -90,7 +91,21 @@ app.post('/:options/signin', async (req, res) => {
             return res.status(400).json({ message: 'Incorrect username or email or phone number' });
         }
 
-        // PART 2
+        // compare password from client side & DB side (hashed password)
+        const passwordIsValid = await bcrypt.compare(password, adminUser.password);
+
+        if (!passwordIsValid) {
+            return res.status(400).json({ auth: false, token: null });
+        }
+
+        // if password is valid, generate JWT & store in avariable
+        const token = jwt.sign(
+            {id: adminUser.id, username: adminUser.username, email: adminUser.email, phone_number: adminUser.phone_number},
+            SECRET_KEY,
+            { expiresIn: 86400 }    // 86400 ms = 24 hr
+        );
+
+        res.status(200).json({ auth: true, token: token });
 
     } catch (error) {
         console.log('Error:', error.message);
