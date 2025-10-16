@@ -115,6 +115,21 @@ app.post('/:options/signin', async (req, res) => {
     }
 });
 
+
+// delete account
+app.delete('/account/:options/delete', async (req, res) => {
+    const { options } = req.params;
+    const client = await pool.connect();
+
+    // try {
+    //     const { password } = req.body;
+
+    //     const adminUser = 
+
+    //     const passwordIsValid = await bcrypt.compare(password, )
+    // }
+});
+
 // REQUEST ENDPOINT
 // endpoint
 app.get('/users', async (req, res) => {
