@@ -117,17 +117,37 @@ app.post('/:options/signin', async (req, res) => {
 
 
 // delete account
-app.delete('/account/:options/delete', async (req, res) => {
-    const { options } = req.params;
+app.delete('/account/:options/delete/:id', async (req, res) => {
+    const { options, id } = req.params;
     const client = await pool.connect();
 
     // try {
     //     const { password } = req.body;
+        
+    //     const adminUserPwd = await client.query(`SELECT password FROM ${options}s WHERE id = $1`, [id]);
 
-    //     const adminUser = 
-
-    //     const passwordIsValid = await bcrypt.compare(password, )
+    //     const passwordIsValid = await bcrypt.compare(password, adminUserPwd.rows[0]);
     // }
+});
+
+// tester
+app.get('/account/:options/delete/:id', async (req, res) => {
+    const { options, id } = req.params;
+    const client = await pool.connect();
+
+    try {
+        const { password } = req.body;
+        
+        const adminUserPwd = await client.query(`SELECT password FROM ${options}s WHERE id = $1`, [id]);
+
+        res.status(200).json(adminUserPwd.rows[0]);
+        
+    } catch (error) {
+        console.log('Error:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
 });
 
 // REQUEST ENDPOINT
