@@ -140,8 +140,10 @@ app.get('/account/:options/delete/:id', async (req, res) => {
         
         const adminUserPwd = await client.query(`SELECT password FROM ${options}s WHERE id = $1`, [id]);
 
-        res.status(200).json(adminUserPwd.rows[0]);
-        
+        const hashedPassword = adminUserPwd.rows[0].password;
+
+        res.status(200).json(hashedPassword);
+
     } catch (error) {
         console.log('Error:', error.message);
         res.status(500).json({ error: error.message });
