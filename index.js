@@ -121,13 +121,28 @@ app.delete('/account/:options/delete/:id', async (req, res) => {
     const { options, id } = req.params;
     const client = await pool.connect();
 
-    // try {
-    //     const { password } = req.body;
+    try {
+        const { password } = req.body;
         
-    //     const adminUserPwd = await client.query(`SELECT password FROM ${options}s WHERE id = $1`, [id]);
+        const adminUserPwd = await client.query(`SELECT password FROM ${options}s WHERE id = $1`, [id]);
 
-    //     const passwordIsValid = await bcrypt.compare(password, adminUserPwd.rows[0]);
-    // }
+        const hashedPassword = adminUserPwd.rows[0].password;
+
+        const passwordIsValid = await bcrypt.compare(password, hashedPassword);
+
+        if (!passwordIsValid) {
+            return res.status(400).json({ message: 'Invalid password' });
+        } else {
+            await client.query(`DELETE FROM ${options}s WHERE id = $1`, [id]);
+            return res.status(200).json({ message: 'Your account successfully deleted' });
+        }
+
+    } catch (error) {
+        console.log('Error:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
 });
 
 // tester
