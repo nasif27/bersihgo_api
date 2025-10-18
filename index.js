@@ -117,7 +117,7 @@ app.post('/:options/signin', async (req, res) => {
 
 // forgot password
 
-// change password
+// change password (NOT FINISH YET....NEED TO ENCRYPT NEW PWD)
 app.put('/account/:options/change_password/:id', async (req, res) => {
     const { options, id } = req.params;
     const client = await pool.connect();
@@ -135,7 +135,7 @@ app.put('/account/:options/change_password/:id', async (req, res) => {
         await client.query(`UPDATE ${options}s SET password = $1 WHERE id = $2`, [newPassword, id]);
         
         res.status(200).json({ message: 'Your password successfully changed' });
-        
+
     } catch (error) {
         console.log('Error:', error.message);
         res.status(500).json({ error: error.message });
