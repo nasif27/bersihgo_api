@@ -115,6 +115,36 @@ app.post('/:options/signin', async (req, res) => {
     }
 });
 
+// forgot password
+
+// change password
+app.put('/account/:options/change_password/:id', async (req, res) => {
+    const { options, id } = req.params;
+    const client = await pool.connect();
+
+    try {
+        const { password, newPassword } = req.body;
+        const adminUserPwd = await client.query(`SELECT password FROM ${options}s WHERE id = $1`, [id]);
+        const hashedPassword = adminUserPwd.rows[0].password;
+        const passwordIsValid = await bcrypt.compare(password, hashedPassword);
+
+        if (!passwordIsValid) {
+            return res.status(400).json({ message: 'Invalid password' });
+        }
+
+        await client.query(`UPDATE ${options}s SET password = $1 WHERE id = $2`, [newPassword, id]);
+        
+        res.status(200).json({ message: 'Your password successfully changed' });
+        
+    } catch (error) {
+        console.log('Error:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
+
+// change username/email/phone number
 
 // delete account
 app.delete('/account/:options/delete/:id', async (req, res) => {
