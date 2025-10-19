@@ -72,7 +72,7 @@ app.post('/:options/signup', async (req, res) => {
     }
 });
 
-// admin & user sign in endpoint
+// admin & user sign in endpoint (PROBLEM AT JWT)
 app.post('/:options/signin', async (req, res) => {
     const { options } = req.params;     // admin or user
     const client = await pool.connect();
@@ -117,7 +117,7 @@ app.post('/:options/signin', async (req, res) => {
 
 // forgot password
 
-// change password (NOT FINISH YET....NEED TO ENCRYPT NEW PWD)
+// change password
 app.put('/account/:options/change_password/:id', async (req, res) => {
     const { options, id } = req.params;
     const client = await pool.connect();
