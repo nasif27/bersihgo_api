@@ -124,15 +124,18 @@ app.put('/account/:options/change_password/:id', async (req, res) => {
 
     try {
         const { password, newPassword } = req.body;
+        const newHashedPassword = await bcrypt.hash(newPassword, 12);
         const adminUserPwd = await client.query(`SELECT password FROM ${options}s WHERE id = $1`, [id]);
         const hashedPassword = adminUserPwd.rows[0].password;
         const passwordIsValid = await bcrypt.compare(password, hashedPassword);
 
+        // check current password validity
         if (!passwordIsValid) {
             return res.status(400).json({ message: 'Invalid password' });
         }
 
-        await client.query(`UPDATE ${options}s SET password = $1 WHERE id = $2`, [newPassword, id]);
+        // update new hashed pwd into DB table
+        await client.query(`UPDATE ${options}s SET password = $1 WHERE id = $2`, [newHashedPassword, id]);
         
         res.status(200).json({ message: 'Your password successfully changed' });
 
