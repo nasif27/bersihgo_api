@@ -98,9 +98,12 @@ app.post('/:options/signin', async (req, res) => {
             return res.status(400).json({ auth: false, token: null });
         }
 
+        const adminUserCredentials = adminUser.username || adminUser.email;
+
         // if password is valid, generate JWT & store in avariable
         const token = jwt.sign(
-            {id: adminUser.id, username: adminUser.username, email: adminUser.email, phone_number: adminUser.phone_number},
+            // {id: adminUser.id, username: adminUser.username, email: adminUser.email, phone_number: adminUser.phone_number},
+            {id: adminUser.id, usernameEmail: adminUserCredentials},
             SECRET_KEY,
             { expiresIn: 86400 }    // 86400 ms = 24 hr
         );
