@@ -98,7 +98,7 @@ app.post('/:options/signin', async (req, res) => {
             return res.status(400).json({ auth: false, token: null });
         }
 
-        let adminUserCredentials = adminUser.username || adminUser.email;
+        const adminUserCredentials = usernameEmail === adminUser.username || adminUser.email;
 
         // if password is valid, generate JWT & store in avariable
         const token = jwt.sign(
