@@ -100,28 +100,28 @@ app.post('/:options/signin', async (req, res) => {
 
         // const adminUserCredentials = usernameEmail === ? adminUser.username : adminUser.email;
 
-        // let token = '';
+        let token = '';
 
         // if password is valid, generate JWT & store in avariable
-        // if (username === adminUser.username) {
-        //     const generatedToken = jwt.sign(
-        //         // {id: adminUser.id, username: adminUser.username, email: adminUser.email, phone_number: adminUser.phone_number},
-        //         {id: adminUser.id, username: adminUser.username},
-        //         SECRET_KEY,
-        //         { expiresIn: 86400 }    // 86400 ms = 24 hr
-        //     );
+        if (username === adminUser.username) {
+            const generatedToken = jwt.sign(
+                // {id: adminUser.id, username: adminUser.username, email: adminUser.email, phone_number: adminUser.phone_number},
+                {id: adminUser.id, username: adminUser.username},
+                SECRET_KEY,
+                { expiresIn: 86400 }    // 86400 ms = 24 hr
+            );
 
-        //     token = generatedToken;
+            token = generatedToken;
 
-        // } else if (email === adminUser.email) {
-        //     const generatedToken = jwt.sign(
-        //         {id: adminUser.id, email: adminUser.email},
-        //         SECRET_KEY,
-        //         { expiresIn: 86400 }
-        //     );
+        } else if (email === adminUser.email) {
+            const generatedToken = jwt.sign(
+                {id: adminUser.id, email: adminUser.email},
+                SECRET_KEY,
+                { expiresIn: 86400 }
+            );
 
-        //     token = generatedToken;
-        // }
+            token = generatedToken;
+        }
 
 
 
@@ -137,11 +137,11 @@ app.post('/:options/signin', async (req, res) => {
 
 
 
-        const token = jwt.sign(
-            {id: adminUser.id, email: adminUser.email},
-            SECRET_KEY,
-            { expiresIn: 86400 }
-        );
+        // const token = jwt.sign(
+        //     {id: adminUser.id, email: adminUser.email},
+        //     SECRET_KEY,
+        //     { expiresIn: 86400 }
+        // );
 
         res.status(200).json({ auth: true, token: token });
 
