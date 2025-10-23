@@ -186,6 +186,39 @@ app.put('/account/:options/change_password/:id', async (req, res) => {
 });
 
 // change username/email/phone number
+app.put('/account/:options/:credentials/:id', async (req, res) => {
+    const { options, credentials, id } = req.params;
+    const client = await pool.connect();
+
+    try {
+        const { username, email, phone_number } = req.body;
+
+        switch (credentials) {
+            case 'username':
+                await client.query(`UPDATE ${options}s SET ${credentials} = $1 WHERE id = $2`, [username, id]);
+                // res.status(200).json({ message: 'Your username successfully changed' });
+                break;
+            case 'email':
+                await client.query(`UPDATE ${options}s SET ${credentials} = $1 WHERE id = $2`, [email, id]);
+                // res.status(200).json({ message: 'Your email successfully changed' });
+                break;
+            case 'phone_number':
+                await client.query(`UPDATE ${options}s SET ${credentials} = $1 WHERE id = $2`, [phone_number, id]);
+                // res.status(200).json({ message: 'Your phone number successfully changed' });
+                break;
+            default:
+                res.status(400).json({ message: 'Invalid credential' });
+                break;
+        }
+
+        res.status(200).json({ message: `Your ${credentials} successfully changed` });
+    } catch (error) {
+        console.log('Error:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
 
 // delete account
 app.delete('/account/:options/delete/:id', async (req, res) => {
