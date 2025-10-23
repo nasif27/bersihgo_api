@@ -186,23 +186,36 @@ app.put('/account/:options/change_password/:id', async (req, res) => {
 });
 
 // change username/email/phone number
-app.put('/account/:options/:credentials/:id', async (req, res) => {
+app.put('/account/:options/change/:credentials/:id', async (req, res) => {
     const { options, credentials, id } = req.params;
     const client = await pool.connect();
 
     try {
         const { username, email, phone_number } = req.body;
 
+        const adminUserExists = await client.query(`SELECT * FROM ${options}s WHERE id = $1`, [id]);
+
+        const adminUser = adminUserExists.rows[0];
+
         switch (credentials) {
             case 'username':
+                if (username === adminUser.username) {
+                    return res.status(400).json({ message: 'Cannot enter same username' });
+                }
                 await client.query(`UPDATE ${options}s SET ${credentials} = $1 WHERE id = $2`, [username, id]);
                 // res.status(200).json({ message: 'Your username successfully changed' });
                 break;
             case 'email':
+                if (email === adminUser.email) {
+                    return res.status(400).json({ message: 'Cannot enter same email' });
+                }
                 await client.query(`UPDATE ${options}s SET ${credentials} = $1 WHERE id = $2`, [email, id]);
                 // res.status(200).json({ message: 'Your email successfully changed' });
                 break;
             case 'phone_number':
+                if (phone_number === adminUser.phone_number) {
+                    return res.status(400).json({ message: 'Cannot enter same phone number' });
+                }
                 await client.query(`UPDATE ${options}s SET ${credentials} = $1 WHERE id = $2`, [phone_number, id]);
                 // res.status(200).json({ message: 'Your phone number successfully changed' });
                 break;
