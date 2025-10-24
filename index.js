@@ -285,7 +285,7 @@ app.get('/testing/account/:options/:id', async (req, res) => {
         // res.status(200).json(hashedPassword);
 
         const otherAdminUserExists = await client.query(`SELECT * FROM ${options}s WHERE id <> $1;`, [id]);
-        const otherAdminUser = otherAdminUserExists.rows[0];
+        const otherAdminUser = otherAdminUserExists.rows;
         res.status(200).json(otherAdminUser);
 
     } catch (error) {
