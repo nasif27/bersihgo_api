@@ -380,13 +380,12 @@ app.get('/service/:persons/:id', async (req, res) => {
 
         if (persons === 'admin') {
             const services = await client.query(`SELECT * FROM services`);
-            res.status(200).json(services);
+            res.status(200).json(services.rows);
         } else if (persons === 'user') {
             const services = await client.query(`SELECT title, description FROM services`);
-            res.status(200).json(services);
-        } else {
-            res.status(400).json({ message: 'Access denied' });
+            res.status(200).json(services.rows);
         }
+        
     } catch (error) {
         console.log("Error:", error.message);
         res.status(500).json({ error: error.message });
