@@ -324,7 +324,7 @@ app.get('/testing/account/:options/:id', async (req, res) => {
 });
 
 // REQUEST ENDPOINT
-// endpoint
+// GET(Read) all users endpoint
 app.get('/users', async (req, res) => {
     const client = await pool.connect();
 
@@ -339,6 +339,34 @@ app.get('/users', async (req, res) => {
     }
 });
 
+// POST(Create) service by admin endpoint
+app.post('/service/admin/:id', async (req, res) => {
+    const client = await pool.connect();
+    const { id } = req.params;
+    const { title, description } = req.body;
+
+    try {
+        // check admin existence
+        const adminExists = await client.query(`SELECT * FROM admins WHERE id = $1`, [id]);
+
+        if (adminExists.rows.length > 0) {
+            const post = await client.query(`INSERT INTO services (title, description, created_at, admin_id) VALUES ($1, $2, NOW(), $3)`, [title, description, id]);
+            // res.status(200).json({ message: 'Service successfully created' });
+            res.status(200).json(post);
+        } else {
+            return res.status(404).json({ message: 'Admin not found' });
+        }
+    } catch (error) {
+        console.log("Error:", error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
+
+app.get('', async (req, res) => {
+
+});
 
 // boilerplate code
 app.get('/', (req, res) => {
