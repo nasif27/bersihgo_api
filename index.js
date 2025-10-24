@@ -197,11 +197,21 @@ app.put('/account/:options/change/:credentials/:id', async (req, res) => {
 
         const adminUser = adminUserExists.rows[0];
 
+        const otherAdminUserExists = await client.query(`SELECT * FROM ${options}s WHERE id <> $1;`, [id]);
+
+        const otherAdminUser = otherAdminUserExists.rows[0];
+
+        for (const eachPerson of otherAdminUser) {
+            if (username === eachPerson.username) {
+
+            }
+        }
+
         switch (credentials) {
             case 'username':
                 if (username === adminUser.username) {
                     return res.status(400).json({ message: 'Cannot enter same username' });
-                }
+                } else if (username === otherAdminUser)
                 await client.query(`UPDATE ${options}s SET ${credentials} = $1 WHERE id = $2`, [username, id]);
                 // res.status(200).json({ message: 'Your username successfully changed' });
                 break;
@@ -263,18 +273,20 @@ app.delete('/account/:options/delete/:id', async (req, res) => {
 });
 
 // tester
-app.get('/account/:options/delete/:id', async (req, res) => {
+app.get('/testing/account/:options/:id', async (req, res) => {
     const { options, id } = req.params;
     const client = await pool.connect();
 
     try {
         const { password } = req.body;
         
-        const adminUserPwd = await client.query(`SELECT password FROM ${options}s WHERE id = $1`, [id]);
+        // const adminUserPwd = await client.query(`SELECT password FROM ${options}s WHERE id = $1`, [id]);
+        // const hashedPassword = adminUserPwd.rows[0].password;
+        // res.status(200).json(hashedPassword);
 
-        const hashedPassword = adminUserPwd.rows[0].password;
-
-        res.status(200).json(hashedPassword);
+        const otherAdminUserExists = await client.query(`SELECT * FROM ${options}s WHERE id <> $1;`, [id]);
+        const otherAdminUser = otherAdminUserExists.rows[0];
+        res.status(200).json(otherAdminUser);
 
     } catch (error) {
         console.log('Error:', error.message);
