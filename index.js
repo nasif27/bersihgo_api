@@ -352,7 +352,7 @@ app.post('/service/admin/:id', async (req, res) => {
         if (adminExists.rows.length > 0) {
             const post = await client.query(`INSERT INTO services (title, description, created_at, admin_id) VALUES ($1, $2, NOW(), $3) RETURNING *`, [title, description, id]);
             // res.status(200).json({ message: 'Service successfully created' });
-            res.status(200).json(post);
+            res.status(200).json(post.rows[0]);
         } else {
             return res.status(404).json({ message: 'Admin not found' });
         }
