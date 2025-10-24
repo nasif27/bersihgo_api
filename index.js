@@ -364,9 +364,37 @@ app.post('/service/admin/:id', async (req, res) => {
     }
 });
 
-// app.get('', async (req, res) => {
+// GET(Read) all services created
+app.get('/service/:persons/:id', async (req, res) => {
+    const client = await pool.connect();
+    const { persons, id } = req.params;
 
-// });
+    try {
+        // check admin/user existence
+        const adminUserExists = await client.query(`SELECT * FROM ${persons}s WHERE id = $1`, [id]);
+        const adminUser = adminUserExists.rows[0];
+        
+        if (!adminUser) {
+            return res.status(404).json({ message: `${persons} not found`});
+        }
+
+        if (persons === 'admin') {
+            const services = await client.query(`SELECT * FROM services`);
+            res.status(200).json(services);
+        } else if (persons === 'user') {
+            const services = await client.query(`SELECT title, description FROM services`);
+            res.status(200).json(services);
+        } else {
+            res.status(400).json({ message: 'Access denied' });
+        }
+    } catch (error) {
+        console.log("Error:", error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
+
 
 // boilerplate code
 app.get('/', (req, res) => {
