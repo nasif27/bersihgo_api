@@ -199,33 +199,54 @@ app.put('/account/:options/change/:credentials/:id', async (req, res) => {
 
         const otherAdminUserExists = await client.query(`SELECT * FROM ${options}s WHERE id <> $1;`, [id]);
 
-        const otherAdminUser = otherAdminUserExists.rows[0];
+        const otherAdminUser = otherAdminUserExists.rows;
 
-        for (const eachPerson of otherAdminUser) {
-            if (username === eachPerson.username) {
-
-            }
-        }
+        // for (const eachPerson of otherAdminUser) {
+        //     if (username === eachPerson.username) {
+        //         res.status(400).json({ message: 'This username already exist' });
+        //     }
+        // }
 
         switch (credentials) {
             case 'username':
+                for (const eachPerson of otherAdminUser) {
+                    if (username === eachPerson.username) {
+                        res.status(400).json({ message: 'This username already exist' });
+                    }
+                }
+
                 if (username === adminUser.username) {
                     return res.status(400).json({ message: 'Cannot enter same username' });
-                } else if (username === otherAdminUser)
+                }
+
                 await client.query(`UPDATE ${options}s SET ${credentials} = $1 WHERE id = $2`, [username, id]);
                 // res.status(200).json({ message: 'Your username successfully changed' });
                 break;
             case 'email':
+                for (const eachPerson of otherAdminUser) {
+                    if (email === eachPerson.email) {
+                        res.status(400).json({ message: 'This email already exist' });
+                    }
+                }
+
                 if (email === adminUser.email) {
                     return res.status(400).json({ message: 'Cannot enter same email' });
                 }
+
                 await client.query(`UPDATE ${options}s SET ${credentials} = $1 WHERE id = $2`, [email, id]);
                 // res.status(200).json({ message: 'Your email successfully changed' });
                 break;
             case 'phone_number':
+                for (const eachPerson of otherAdminUser) {
+                    if (phone_number === eachPerson.phone_number) {
+                        res.status(400).json({ message: 'This phone number already exist' });
+                    }
+                }
+
                 if (phone_number === adminUser.phone_number) {
                     return res.status(400).json({ message: 'Cannot enter same phone number' });
                 }
+
                 await client.query(`UPDATE ${options}s SET ${credentials} = $1 WHERE id = $2`, [phone_number, id]);
                 // res.status(200).json({ message: 'Your phone number successfully changed' });
                 break;
