@@ -278,7 +278,7 @@ app.get('/testing/account/:options/:id', async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { password } = req.body;
+        const { password, username, email, phone_number } = req.body;
         
         // const adminUserPwd = await client.query(`SELECT password FROM ${options}s WHERE id = $1`, [id]);
         // const hashedPassword = adminUserPwd.rows[0].password;
@@ -286,7 +286,13 @@ app.get('/testing/account/:options/:id', async (req, res) => {
 
         const otherAdminUserExists = await client.query(`SELECT * FROM ${options}s WHERE id <> $1;`, [id]);
         const otherAdminUser = otherAdminUserExists.rows;
-        res.status(200).json(otherAdminUser);
+        for (const eachPerson of otherAdminUser) {
+            if (username === eachPerson.username) {
+                res.status(200).json(eachPerson);
+            }
+        }
+        
+        // res.status(200).json(otherAdminUser);
 
     } catch (error) {
         console.log('Error:', error.message);
