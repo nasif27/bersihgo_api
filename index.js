@@ -364,9 +364,9 @@ app.post('/service/admin/:id', async (req, res) => {
     }
 });
 
-app.get('', async (req, res) => {
+// app.get('', async (req, res) => {
 
-});
+// });
 
 // boilerplate code
 app.get('/', (req, res) => {
