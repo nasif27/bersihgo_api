@@ -378,14 +378,10 @@ app.get('/service/:persons/:id', async (req, res) => {
             return res.status(404).json({ message: `${persons} not found`});
         }
 
-        if (persons === 'admin') {
+        if (persons === 'admin' || persons === 'user') {
             const services = await client.query(`SELECT * FROM services`);
             res.status(200).json(services.rows);
-        } else if (persons === 'user') {
-            const services = await client.query(`SELECT title, description FROM services`);
-            res.status(200).json(services.rows);
         }
-        
     } catch (error) {
         console.log("Error:", error.message);
         res.status(500).json({ error: error.message });
