@@ -364,7 +364,7 @@ app.post('/service/admin/:id', async (req, res) => {
     }
 });
 
-// GET(Read) all services created
+// GET(Read) all services created (admin or user)
 app.get('/service/:persons/:id', async (req, res) => {
     const client = await pool.connect();
     const { persons, id } = req.params;
@@ -384,6 +384,27 @@ app.get('/service/:persons/:id', async (req, res) => {
         }
     } catch (error) {
         console.log("Error:", error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
+
+// GET(Read) specific service by id (admin or user)
+app.get('/service/:id', async (req, res) => {
+    const client = await pool.connect();
+    const { id } = req.params;
+
+    try {
+        const service = await client.query(`SELECT * FROM services WHERE id = $1`, [id]);
+
+        if (service.rows.length > 0) {
+            return res.status(200).json(service.rows[0]);
+        } else {
+            return res.status(404).json({ error: 'Service not found' });
+        }
+    } catch (error) {
+        console.log('Error:', error.message);
         res.status(500).json({ error: error.message });
     } finally {
         client.release();
