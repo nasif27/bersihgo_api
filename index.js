@@ -153,6 +153,28 @@ app.post('/:options/signin', async (req, res) => {
     }
 });
 
+// GET(Read) admin or user specific info
+app.get('/:persons/:id', async (req, res) => {
+    const client = await pool.connect();
+    const { persons, id } = req.params;
+
+    try {
+        const adminUserExists = await client.query(`SELECT * FROM ${persons}s WHERE id = $1`, [id]);
+        const adminUser = adminUserExists.rows[0];
+
+        if (!adminUser) {
+            return res.status(404).json({ error: `${persons} not found` });
+        }
+
+        res.status(200).json(adminUser);
+    } catch (error) {
+        console.log('Error:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
+
 // forgot password
 
 // change password
