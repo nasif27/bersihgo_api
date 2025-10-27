@@ -153,7 +153,7 @@ app.post('/:options/signin', async (req, res) => {
     }
 });
 
-// GET(Read) admin or user specific info
+// GET(Read) admin or user specific info by id
 app.get('/:persons/:id', async (req, res) => {
     const client = await pool.connect();
     const { persons, id } = req.params;
@@ -424,6 +424,36 @@ app.get('/service/:id', async (req, res) => {
             return res.status(200).json(service.rows[0]);
         } else {
             return res.status(404).json({ error: 'Service not found' });
+        }
+    } catch (error) {
+        console.log('Error:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
+
+// PUT(Update) specific service (admin)
+app.put('/admin/:admin_id/service/:id', async (req, res) => {
+    const client = await pool.connect();
+    const { admin_id, id } = req.params;
+
+    try {
+        const { title, description } = req.body;
+        
+        // Check admin existence
+        const adminUser = await client.query(`SELECT * FROM admins WHERE id = $1`, [admin_id]);
+        
+        // Check service existence
+        const service = await client.query(`SELECT * FROM services WHERE id = $1`, [id]);
+        
+        // If admin & service exist, allow admin to update/change
+        if (adminUser.rows.length > 0 && service.rows.length > 0) {
+            const updatedService = await client.query(`UPDATE services SET title = $1, description = $2, updated_at = NOW() WHERE id = $3`, [title, description, id]);
+            res.status(200).json(updatedService);
+            // res.status(200).json({ message: 'Service successfully updated' });
+        } else {
+            return res.status(400).json({ error: 'Admin or service not found' });
         }
     } catch (error) {
         console.log('Error:', error.message);
