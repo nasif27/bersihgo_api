@@ -449,7 +449,7 @@ app.put('/admin/:admin_id/service/:id', async (req, res) => {
         
         // If admin & service exist, allow admin to update/change
         if (adminUser.rows.length > 0 && service.rows.length > 0) {
-            const updatedService = await client.query(`UPDATE services SET title = $1, description = $2, updated_at = NOW() WHERE id = $3`, [title, description, id]);
+            const updatedService = await client.query(`UPDATE services SET title = $1, description = $2, updated_at = NOW() WHERE id = $3 RETURNING *`, [title, description, id]);
             res.status(200).json(updatedService.rows[0]);
             // res.status(200).json({ message: 'Service successfully updated' });
         } else {
