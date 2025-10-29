@@ -41,6 +41,8 @@ getPostgresVersion();
 //     const client
 // })
 
+///////////////////////////////////// AUTHENTICATION /////////////////////////////////////
+
 // admin & user sign up endpoint
 app.post('/:options/signup', async (req, res) => {
     const { options } = req.params;
@@ -361,6 +363,8 @@ app.get('/users', async (req, res) => {
     }
 });
 
+/////////////////////////////////////// SERVICE ///////////////////////////////////////
+
 // POST(Create) service by admin endpoint
 app.post('/service/admin/:id', async (req, res) => {
     const client = await pool.connect();
@@ -484,6 +488,42 @@ app.delete('/admin/:admin_id/service/:id', async (req, res) => {
         } else {
             res.status(404).json({ error: 'Service not found' });
         }
+    } catch (error) {
+        console.log('Error:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
+
+/////////////////////////////////////// BOOKING ///////////////////////////////////////
+
+// POST(Create) booking by user
+app.post('/booking/user/:id', async (req, res) => {
+    const client = await pool.connect();
+    const { id } = req.params;
+
+    try {
+        const { service_title, location, booking_date, booking_time, notes, status, created_at, user_id, service_id } = req.body;
+        
+        // check user's existence
+        const userExists = await client.query(`SELECT * FROM users WHERE id = $1`, [id]);
+        const user = userExists.rows[0];
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // check same booking (date & time) existence
+        const bookingsExist = await client.query(`SELECT * FROM bookings WHERE user_id = $1`, [id]);
+        const bookings = bookingsExist.rows[0];
+
+        // if same booking (date & time) not exist, create the booking
+        if (booking_date === bookings.booking_date && booking_time === bookings.booking_time) {
+            return res.status(400).json({ message: 'Cannot book same date and time' });
+        }
+        
+        await client.query(`INSERT INTO bookings (service_title, location, booking_date, booking_time, notes, status, created_at, user_id, service_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, [service_title, location, booking_date, booking_time, notes, status, created_at, user_id, service_id]);
     } catch (error) {
         console.log('Error:', error.message);
         res.status(500).json({ error: error.message });
