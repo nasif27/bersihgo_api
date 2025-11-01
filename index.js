@@ -543,7 +543,8 @@ app.get('/testing/booking/user/:id', async (req, res) => {
         const { service_title, location, booking_date, booking_time, notes, status, created_at, user_id, service_id } = req.body;
         
         // check same booking (date & time) existence
-        const bookingExists = await client.query(`SELECT * FROM bookings WHERE user_id = $1 AND service_id = $2 AND location = $3 AND booking_date = TO_DATE($4, 'DD/MM/YYYY') AND booking_time = $5`, [id, service_id, location, booking_date, booking_time]);
+        // const bookingExists = await client.query(`SELECT * FROM bookings WHERE user_id = $1 AND service_id = $2 AND location = $3 AND booking_date = TO_DATE($4, 'DD/MM/YYYY') AND booking_time = $5`, [id, service_id, location, booking_date, booking_time]);
+        const bookingExists = await client.query(`SELECT * FROM bookings WHERE user_id = $1`, [id])
         const booking = bookingExists.rows[0];
         res.status(200).json(booking);
 
