@@ -515,15 +515,20 @@ app.post('/booking/user/:id', async (req, res) => {
         }
 
         // check same booking (date & time) existence
-        const bookingsExist = await client.query(`SELECT * FROM bookings WHERE user_id = $1`, [id]);
-        const bookings = bookingsExist.rows[0];
+        // const bookingsExist = await client.query(`SELECT * FROM bookings WHERE user_id = $1`, [id]);
+        // const bookings = bookingsExist.rows[0];
+        const booking = await client.query(`SELECT * FROM bookings WHERE user_id = $1 AND service_id = $2 AND location = $3 AND booking_date = TO_DATE($4, 'DD/MM/YYYY') AND booking_time = $5`, [id, service_id, location, booking_date, booking_time]);
 
-        // if same booking (date & time) not exist, create the booking
-        if (booking_date === bookings.booking_date && booking_time === bookings.booking_time) {
-            return res.status(400).json({ message: 'Cannot book same date and time' });
+        if (booking.rows.length > 0) {
+            return res.status(400).json({ error: 'Booking already exists' });
         }
-        
-        await client.query(`INSERT INTO bookings (service_title, location, booking_date, booking_time, notes, status, created_at, user_id, service_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, [service_title, location, booking_date, booking_time, notes, status, created_at, user_id, service_id]);
+
+        const serviceTitleExists = await client.query(`SELECT title FROM services WHERE id = $1`, [service_id]);
+        const serviceTitle = serviceTitleExists.rows[0].title;
+
+        await client.query(`INSERT INTO bookings (service_title, location, booking_date, booking_time, notes, status, created_at, user_id, service_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, [serviceTitle, location, booking_date, booking_time, notes, status, created_at, id, service_id]);
+        res.status(200).json({ message: 'Your booking successfully created' });
+
     } catch (error) {
         console.log('Error:', error.message);
         res.status(500).json({ error: error.message });
@@ -543,8 +548,8 @@ app.get('/testing/booking/user/:id', async (req, res) => {
         const { service_title, location, booking_date, booking_time, notes, status, created_at, user_id, service_id } = req.body;
         
         // check same booking (date & time) existence
-        // const bookingExists = await client.query(`SELECT * FROM bookings WHERE user_id = $1 AND service_id = $2 AND location = $3 AND booking_date = TO_DATE($4, 'DD/MM/YYYY') AND booking_time = $5`, [id, service_id, location, booking_date, booking_time]);
-        const bookingExists = await client.query(`SELECT * FROM bookings WHERE user_id = $1`, [id])
+        const bookingExists = await client.query(`SELECT * FROM bookings WHERE user_id = $1 AND service_id = $2 AND location = $3 AND booking_date = TO_DATE($4, 'DD/MM/YYYY') AND booking_time = $5`, [id, service_id, location, booking_date, booking_time]);
+        // const bookingExists = await client.query(`SELECT * FROM bookings WHERE user_id = $1`, [id])
         const booking = bookingExists.rows[0];
         res.status(200).json(booking);
 
