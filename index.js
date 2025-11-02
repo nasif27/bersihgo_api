@@ -517,7 +517,7 @@ app.post('/booking/user/:id', async (req, res) => {
         // check same booking (date & time) existence
         // const bookingsExist = await client.query(`SELECT * FROM bookings WHERE user_id = $1`, [id]);
         // const bookings = bookingsExist.rows[0];
-        const booking = await client.query(`SELECT * FROM bookings WHERE user_id = $1 AND service_id = $2 AND location = $3 AND booking_date = TO_DATE($4, 'DD/MM/YYYY') AND booking_time = $5`, [id, service_id, location, booking_date, booking_time]);
+        const booking = await client.query(`SELECT * FROM bookings WHERE user_id = $1 AND service_id = $2 AND location = $3 AND booking_date = $4 AND booking_time = $5`, [id, service_id, location, booking_date, booking_time]);
 
         if (booking.rows.length > 0) {
             return res.status(400).json({ error: 'Booking already exists' });
