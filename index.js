@@ -521,13 +521,13 @@ app.post('/booking/user/:id', async (req, res) => {
 
         if (booking.rows.length > 0) {
             return res.status(400).json({ error: 'Booking already exists' });
+        } else {
+            const serviceTitleExists = await client.query(`SELECT title FROM services WHERE id = $1`, [service_id]);
+            const serviceTitle = serviceTitleExists.rows[0].title;
+    
+            await client.query(`INSERT INTO bookings (service_title, location, booking_date, booking_time, notes, status, created_at, user_id, service_id) VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, $8)`, [serviceTitle, location, booking_date, booking_time, notes, status, id, service_id]);
+            res.status(200).json({ message: 'Your booking successfully created' });
         }
-
-        const serviceTitleExists = await client.query(`SELECT title FROM services WHERE id = $1`, [service_id]);
-        const serviceTitle = serviceTitleExists.rows[0].title;
-
-        await client.query(`INSERT INTO bookings (service_title, location, booking_date, booking_time, notes, status, created_at, user_id, service_id) VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, $8)`, [serviceTitle, location, booking_date, booking_time, notes, status, id, service_id]);
-        res.status(200).json({ message: 'Your booking successfully created' });
 
     } catch (error) {
         console.log('Error:', error.message);
