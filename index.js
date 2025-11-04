@@ -626,14 +626,14 @@ app.get('/bookings/user/:id', async (req, res) => {
         } else if (booking_id && booking_date) {
             return res.status(400).json({ error: 'Access denied' });
         } else if (booking_date) {
-            const bookings = await client.query(`SELECT * FROM bookings WHERE booking_date = $1`, [booking_date]);
+            const bookings = await client.query(`SELECT * FROM bookings WHERE booking_date = $1 AND user_id = $2`, [booking_date, id]);
             if (bookings.rows.length > 0) {
                 res.status(200).json(bookings.rows);
             } else {
                 return res.status(404).json({ error: 'Bookings not found' });
             }
         } else if (booking_id) {
-            const booking = await client.query(`SELECT * FROM bookings WHERE id = $1`, [booking_id]);
+            const booking = await client.query(`SELECT * FROM bookings WHERE id = $1 AND user_id = $2`, [booking_id, id]);
             if (booking.rows.length > 0) {
                 res.status(200).json(booking.rows[0]);
             } else {
