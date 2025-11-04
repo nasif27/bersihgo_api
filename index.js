@@ -552,10 +552,10 @@ app.get('/bookings/admin/:id', async (req, res) => {
             return res.status(404).json({ error: 'Admin not found' });
         }
 
-        if (!booking_id || !user_id || !service_id || !booking_date) {
+        if (!booking_id && !user_id && !service_id && !booking_date) {
             const bookings = await client.query(`SELECT * FROM bookings`);
             res.status(200).json(bookings.rows);
-        } else {
+        } else if (booking_id || user_id || service_id || booking_date) {
             const booking = await client.query(`SELECT * FROM bookings WHERE id = $1 OR user_id = $2 OR service_id = $3 OR booking_date = $4`, [booking_id, user_id, service_id, booking_date]);
             if (booking.rows.length > 0) {
                 res.status(200).json(booking.rows[0]);
