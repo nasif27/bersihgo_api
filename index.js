@@ -675,6 +675,51 @@ app.get('/bookings/user/:id', async (req, res) => {
 // });
 
 
+// DELETE specific booking (admin & user)
+app.delete('/:person/:person_id/booking/:id', async (req, res) => {
+    const client = await pool.connect();
+    const { person, person_id, id } = req.params;
+
+    try {
+        // check admin or user existence
+        const adminUserExists = await client.query(`SELECT * FROM ${person}s WHERE id = $1`, [person_id]);
+        const adminUser = adminUserExists.rows[0];
+
+        if (!adminUser) {
+            return res.status(404).json({ error: `${person} not found` });
+        }
+
+        // check booking's existence
+        switch (person) {
+            case 'admin':
+                const bookingExists = await client.query(`SELECT * FROM bookings WHERE id = $1`, [id]);
+                const booking = bookingExists.rows[0];
+                if (!booking) {
+                    return res.status(404).json({ error: 'Booking not found' });
+                }
+                await client.query(`DELETE FROM bookings WHERE id`, [id]);
+                res.status(200).json({ message: 'Booking successfully cancelled' });
+                break;
+            case 'user':
+                const userBookingExists = await client.query(`SELECT * FROM bookings WHERE id = $1 AND user_id = $2`, [id, person_id]);
+                const userBooking = userBookingExists.rows[0];
+                if (!userBooking) {
+                    return res.status(404).json({ error: 'Your booking not found' });
+                }
+                await client.query(`DELETE FROM bookings WHERE id = $1 AND user_id = $2`, [id, person_id]);
+                res.status(200).json({ message: 'Your booking successfully cancelled' });
+                break;
+            default:
+                res.status(400).json({ error: 'Access denied' });
+        }
+    } catch (error) {
+        console.log('Error:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
+
 // testing booking
 app.get('/testing/booking/user/:id', async (req, res) => {
     const client = await pool.connect();
