@@ -555,8 +555,15 @@ app.get('/bookings/admin/:id', async (req, res) => {
         if (!booking_id && !user_id && !service_id && !booking_date) {
             const bookings = await client.query(`SELECT * FROM bookings`);
             res.status(200).json(bookings.rows);
-        } else if (booking_id || user_id || service_id || booking_date) {
-            const booking = await client.query(`SELECT * FROM bookings WHERE id = $1 OR user_id = $2 OR service_id = $3 OR booking_date = $4`, [booking_id, user_id, service_id, booking_date]);
+        } else if (user_id || service_id || booking_date) {
+            const bookings = await client.query(`SELECT * FROM bookings WHERE user_id = $1 OR service_id = $2 OR booking_date = $3`, [user_id, service_id, booking_date]);
+            if (bookings.rows.length > 0) {
+                res.status(200).json(bookings.rows);
+            } else {
+                return res.status(404).json({ error: 'Bookings not found' });
+            }
+        } else if (booking_id) {
+            const booking = await client.query(`SELECT * FROM bookings WHERE id = $1`, [booking_id]);
             if (booking.rows.length > 0) {
                 res.status(200).json(booking.rows[0]);
             } else {
