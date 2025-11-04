@@ -697,7 +697,7 @@ app.delete('/:person/:person_id/booking/:id', async (req, res) => {
                 if (!booking) {
                     return res.status(404).json({ error: 'Booking not found' });
                 }
-                await client.query(`DELETE FROM bookings WHERE id`, [id]);
+                await client.query(`DELETE FROM bookings WHERE id = $1`, [id]);
                 res.status(200).json({ message: 'Booking successfully cancelled' });
                 break;
             case 'user':
