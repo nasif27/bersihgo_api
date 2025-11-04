@@ -581,67 +581,38 @@ app.get('/bookings/admin/:id', async (req, res) => {
     }
 });
 
-// GET(Read) all bookings from all users
-app.get('/bookings/admin/:id', async (req, res) => {
-    const client = await pool.connect();
-    const { id } = req.params;
+// // GET(Read) all bookings from all users
+// app.get('/bookings/admin/:id', async (req, res) => {
+//     const client = await pool.connect();
+//     const { id } = req.params;
 
-    try {
-        // check admin's existence
-        const adminExists = await client.query(`SELECT * FROM admins WHERE id = $1`, [id]);
-        const admin = adminExists.rows[0];
+//     try {
+//         // check admin's existence
+//         const adminExists = await client.query(`SELECT * FROM admins WHERE id = $1`, [id]);
+//         const admin = adminExists.rows[0];
 
-        if (!admin) {
-            return res.status(404).json({ error: 'Admin not found' });
-        }
+//         if (!admin) {
+//             return res.status(404).json({ error: 'Admin not found' });
+//         }
         
-        const bookings = await client.query(`SELECT * FROM bookings`);
-        res.status(200).json(bookings.rows);
-    } catch (error) {
-        console.log('Error:', error.message);
-        res.status(500).json({ error: error.message });
-    } finally {
-        client.release();
-    }
-});
+//         const bookings = await client.query(`SELECT * FROM bookings`);
+//         res.status(200).json(bookings.rows);
+//     } catch (error) {
+//         console.log('Error:', error.message);
+//         res.status(500).json({ error: error.message });
+//     } finally {
+//         client.release();
+//     }
+// });
 
-// GET(Read) all bookings from specific user (admin)
-app.get('/bookings/admin/:admin_id/user', async (req, res) => {
-    const client = await pool.connect();
-    const { admin_id } = req.params;
-    const { user_id } = req.body;
 
-    try {
-        // Check admin's existence
-        const adminExists = await client.query(`SELECT * FROM admins WHERE id = $1`, [admin_id]);
-        const admin = adminExists.rows[0];
-        
-        // Check user's existence
-        const userExists = await client.query(`SELECT * FROM users WHERE id = $1`, [user_id]);
-        const user = userExists.rows[0];
-
-        if (!admin || !user) {
-            return res.status(404).json({ error: 'Admin or user not found' });
-        }
-
-        // Get all user's bookings
-        const bookings = await client.query(`SELECT * FROM bookings WHERE user_id = $1`, [user_id]);
-        res.status(200).json(bookings.rows);
-    } catch (error) {
-        console.log('Error:', error.message);
-        res.status(500).json({ error: error.message });
-    } finally {
-        client.release();
-    }
-});
-
-// GET(Read) all bookings from specific user (user)
 app.get('/bookings/user/:id', async (req, res) => {
     const client = await pool.connect();
     const { id } = req.params;
+    const { booking_id, booking_date } = req.body;
 
     try {
-        // check user's existence
+        // check admin's existence
         const userExists = await client.query(`SELECT * FROM users WHERE id = $1`, [id]);
         const user = userExists.rows[0];
 
@@ -649,8 +620,27 @@ app.get('/bookings/user/:id', async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        const bookings = await client.query(`SELECT * FROM bookings WHERE user_id = `, [id]);
-        res.status(200).json(bookings.rows);
+        if (!booking_id && !booking_date) {
+            const bookings = await client.query(`SELECT * FROM bookings WHERE user_id = $1`, [id]);
+            res.status(200).json(bookings.rows);
+        } else if (booking_id && booking_date) {
+            return res.status(400).json({ error: 'Access denied' });
+        } else if (booking_date) {
+            const bookings = await client.query(`SELECT * FROM bookings WHERE booking_date = $1`, [booking_date]);
+            if (bookings.rows.length > 0) {
+                res.status(200).json(bookings.rows);
+            } else {
+                return res.status(404).json({ error: 'Bookings not found' });
+            }
+        } else if (booking_id) {
+            const booking = await client.query(`SELECT * FROM bookings WHERE id = $1`, [booking_id]);
+            if (booking.rows.length > 0) {
+                res.status(200).json(booking.rows[0]);
+            } else {
+                return res.status(404).json({ error: 'Booking not found' });
+            }
+        }
+        
     } catch (error) {
         console.log('Error:', error.message);
         res.status(500).json({ error: error.message });
@@ -659,11 +649,30 @@ app.get('/bookings/user/:id', async (req, res) => {
     }
 });
 
-// GET(Read) specific booking from specific user
 
+// // GET(Read) all bookings from specific user (user)
+// app.get('/bookings/user/:id', async (req, res) => {
+//     const client = await pool.connect();
+//     const { id } = req.params;
 
+//     try {
+//         // check user's existence
+//         const userExists = await client.query(`SELECT * FROM users WHERE id = $1`, [id]);
+//         const user = userExists.rows[0];
 
+//         if (!user) {
+//             return res.status(404).json({ error: 'User not found' });
+//         }
 
+//         const bookings = await client.query(`SELECT * FROM bookings WHERE user_id = `, [id]);
+//         res.status(200).json(bookings.rows);
+//     } catch (error) {
+//         console.log('Error:', error.message);
+//         res.status(500).json({ error: error.message });
+//     } finally {
+//         client.release();
+//     }
+// });
 
 
 // testing booking
