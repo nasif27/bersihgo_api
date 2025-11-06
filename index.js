@@ -675,6 +675,57 @@ app.get('/bookings/user/:id', async (req, res) => {
 // });
 
 
+// PUT(Update) booking by user
+app.put('/:person/:person_id/booking/:id', async (req, res) => {
+    const client = await pool.connect();
+    const { person, person_id, id } = req.params;
+    const { booking_status, location, booking_date, booking_time, notes } = req.body;
+
+    try {
+        // check admin or user existence
+        const adminUserExists = await client.query(`SELECT * FROM ${person}s WHERE id = $1`, [person_id]);
+        const adminUser = adminUserExists.rows[0];
+
+        if (!adminUser) {
+            return res.status(404).json({ error: `${person} not found` });
+        }
+        
+        // check booking existence (admin)
+        const bookingExists = await client.query(`SELECT * FROM bookings WHERE id = $1`, [id]);
+        const booking = bookingExists.rows[0];
+        
+        // check booking existence (user)
+        const userbookingExists = await client.query(`SELECT * FROM bookings WHERE id = $1 AND user_id = $2`, [id, person_id]);
+        const userBooking = userbookingExists.rows[0];
+
+        switch (person) {
+            case 'admin':
+                if (!booking) {
+                    return res.status(404).json({ error: 'Booking not found' });
+                }
+                await client.query(`UPDATE bookings SET status = $1, updated_at = NOW() WHERE id = $2`, [booking_status, id]);
+                res.status(200).json({ message: 'Booking successfully updated' });
+                break;
+            case 'user':
+                if (!userBooking) {
+                    return res.status(404).json({ error: 'Your booking not found' });
+                }
+                await client.query(`UPDATE bookings SET location = $1 OR booking_date = $2 OR booking_time = $3 OR notes = $4 WHERE id = $5 AND user_id = $6`, [location, booking_date, booking_time, notes, id, person_id]);
+                res.status(200).json({ message: 'Your booking successfully updated' });
+                break;
+            default:
+                res.status(400).json({ error: 'Access denied' });
+                break;
+        }
+        
+    } catch (error) {
+        console.log('Error:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        client.release();
+    }
+});
+
 // DELETE specific booking (admin & user)
 app.delete('/:person/:person_id/booking/:id', async (req, res) => {
     const client = await pool.connect();
