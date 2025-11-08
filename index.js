@@ -710,7 +710,7 @@ app.put('/:person/:person_id/booking/:id', async (req, res) => {
                 if (!userBooking) {
                     return res.status(404).json({ error: 'Your booking not found' });
                 }
-                await client.query(`UPDATE bookings SET location = $1 OR booking_date = $2 OR booking_time = $3 OR notes = $4 WHERE id = $5 AND user_id = $6`, [location, booking_date, booking_time, notes, id, person_id]);
+                await client.query(`UPDATE bookings SET location = $1, booking_date = $2, booking_time = $3, notes = $4 WHERE id = $5 AND user_id = $6`, [location, booking_date, booking_time, notes, id, person_id]);
                 res.status(200).json({ message: 'Your booking successfully updated' });
                 break;
             default:
