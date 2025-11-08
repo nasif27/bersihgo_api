@@ -712,19 +712,19 @@ app.put('/:person/:person_id/booking/:id', async (req, res) => {
                 }
 
                 switch (req.body) {
-                    case location:
+                    case (location !== null):
                         await client.query(`UPDATE bookings SET location = $1 WHERE id = $2 AND user_id = $3`, [location, id, person_id]);
                         res.status(200).json({ message: 'Your booking successfully updated' });
                         break;
-                    case booking_date:
+                    case (booking_date !== null):
                         await client.query(`UPDATE bookings SET booking_date = $1 WHERE id = $2 AND user_id = $3`, [booking_date, id, person_id]);
                         res.status(200).json({ message: 'Your booking successfully updated' });
                         break;
-                    case booking_time:
+                    case (booking_time !== null):
                         await client.query(`UPDATE bookings SET booking_time = $1 WHERE id = $2 AND user_id = $3`, [booking_time, id, person_id]);
                         res.status(200).json({ message: 'Your booking successfully updated' });
                         break;
-                    case notes:
+                    case (notes !== null):
                         await client.query(`UPDATE bookings SET notes = $1 WHERE id = $2 AND user_id = $3`, [notes, id, person_id]);
                         res.status(200).json({ message: 'Your booking successfully updated' });
                         break;
