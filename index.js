@@ -680,7 +680,7 @@ app.put('/:person/:person_id/booking/:id', async (req, res) => {
     const client = await pool.connect();
     const { person, person_id, id } = req.params;
     const { booking_status, location, booking_date, booking_time, notes } = req.body;
-    const bookingInfo = [location, booking_date, booking_time, notes];
+    // const bookingInfo = [location, booking_date, booking_time, notes];
 
     try {
         // check admin or user existence
@@ -712,35 +712,35 @@ app.put('/:person/:person_id/booking/:id', async (req, res) => {
                     return res.status(404).json({ error: 'Your booking not found' });
                 }
 
-                switch (req.body) {     // location, booking_date, booking_time, notes
-                    case (location && booking_date && booking_time && notes):
+                switch (true) {     // location, booking_date, booking_time, notes
+                    case location && booking_date && booking_time && notes: 
                         res.status(400).json({ error: 'Access denied' });
                         break;
-                    case (location):    // location
+                    case location:    // location
                         await client.query(`UPDATE bookings SET location = $1 WHERE id = $2 AND user_id = $3`, [location, id, person_id]);
                         res.status(200).json({ message: 'Your booking successfully updated' });
                         break;
-                    case (booking_date):    // booking_date
+                    case booking_date:    // booking_date
                         await client.query(`UPDATE bookings SET booking_date = $1 WHERE id = $2 AND user_id = $3`, [booking_date, id, person_id]);
                         res.status(200).json({ message: 'Your booking successfully updated' });
                         break;
-                    case (booking_time):    // booking_time
+                    case booking_time:    // booking_time
                         await client.query(`UPDATE bookings SET booking_time = $1 WHERE id = $2 AND user_id = $3`, [booking_time, id, person_id]);
                         res.status(200).json({ message: 'Your booking successfully updated' });
                         break;
-                    case (notes):    // notes
+                    case notes:    // notes
                         await client.query(`UPDATE bookings SET notes = $1 WHERE id = $2 AND user_id = $3`, [notes, id, person_id]);
                         res.status(200).json({ message: 'Your booking successfully updated' });
                         break;
                     default:
                         res.status(400).json({ error: 'Invalid data' });
-                        break;
+                        // break;
                 }
 
                 break;
             default:
                 res.status(400).json({ error: 'Access denied' });
-                break;
+                // break;
         }
         
     } catch (error) {
