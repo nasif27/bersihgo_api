@@ -49,20 +49,20 @@ app.post('/:options/signup', async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { username, email, phone_number, password } = req.body;
+        const { username, email, phoneNumber, password } = req.body;
     
         const hashedPassword = await bcrypt.hash(password, 12);
 
         // const adminExists = await client.query('SELECT * FROM admins WHERE username = $1 OR email = $2 OR phone_number = $3', [username, email, phone_number]);
     
-        const adminUserExists = await client.query(`SELECT * FROM ${options}s WHERE username = $1 OR email = $2 OR phone_number = $3`, [username, email, phone_number]);
+        const adminUserExists = await client.query(`SELECT * FROM ${options}s WHERE username = $1 OR email = $2 OR phone_number = $3`, [username, email, phoneNumber]);
     
         if (adminUserExists.rows.length > 0) {
             // res.json(adminUserExists.rows[0]);
             res.status(400).json({ message: `This ${options} already exist` });
         }
 
-        const registerResult = await client.query(`INSERT INTO ${options}s (username, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *`, [username, email, phone_number, hashedPassword]);
+        const registerResult = await client.query(`INSERT INTO ${options}s (username, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *`, [username, email, phoneNumber, hashedPassword]);
         
         res.json(registerResult.rows[0]);
         // res.status(200).json({ message: `The ${options} has been registered successfully` });
@@ -80,10 +80,10 @@ app.post('/:options/signin', async (req, res) => {
     const client = await pool.connect();
 
     try {
-        const { username, email, phone_number, password } = req.body;
+        const { username, email, phoneNumber, password } = req.body;
 
         // check admin or user existence
-        const adminUserExists = await client.query(`SELECT * FROM ${options}s WHERE username = $1 OR email = $2 OR phone_number = $3`, [username, email, phone_number]);
+        const adminUserExists = await client.query(`SELECT * FROM ${options}s WHERE username = $1 OR email = $2 OR phone_number = $3`, [username, email, phoneNumber]);
 
         // if admin or user exists, store in a variable
         const adminUser = adminUserExists.rows[0];
