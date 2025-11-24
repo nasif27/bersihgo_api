@@ -123,6 +123,15 @@ app.post('/:options/signin', async (req, res) => {
             );
 
             token = generatedToken;
+
+        } else if (phoneNumber === adminUser.phone_number) {
+            const generatedToken = jwt.sign(
+                {id: adminUser.id, phoneNumber: adminUser.phone_number},
+                SECRET_KEY,
+                { expiresIn: 86400 }
+            );
+
+            token = generatedToken;
         }
 
 
