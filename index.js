@@ -108,7 +108,7 @@ app.post('/:options/signin', async (req, res) => {
         if (username === adminUser.username) {
             const generatedToken = jwt.sign(
                 // {id: adminUser.id, username: adminUser.username, email: adminUser.email, phone_number: adminUser.phone_number},
-                {id: adminUser.id, username: adminUser.username},
+                {id: adminUser.id, username: adminUser.username, person: options},
                 SECRET_KEY,
                 { expiresIn: 86400 }    // 86400 ms = 24 hr
             );
@@ -117,7 +117,7 @@ app.post('/:options/signin', async (req, res) => {
 
         } else if (email === adminUser.email) {
             const generatedToken = jwt.sign(
-                {id: adminUser.id, email: adminUser.email},
+                {id: adminUser.id, email: adminUser.email, person: options},
                 SECRET_KEY,
                 { expiresIn: 86400 }
             );
@@ -126,7 +126,7 @@ app.post('/:options/signin', async (req, res) => {
 
         } else if (phoneNumber === adminUser.phone_number) {
             const generatedToken = jwt.sign(
-                {id: adminUser.id, phoneNumber: adminUser.phone_number},
+                {id: adminUser.id, phoneNumber: adminUser.phone_number, person: options},
                 SECRET_KEY,
                 { expiresIn: 86400 }
             );
