@@ -314,6 +314,7 @@ app.delete('/account/:options/delete/:id', async (req, res) => {
         if (!passwordIsValid) {
             return res.status(400).json({ message: 'Invalid password' });
         } else {
+            await client.query(`DELETE FROM bookings WHERE user_id = $1`, [id]);
             await client.query(`DELETE FROM ${options}s WHERE id = $1`, [id]);
             return res.status(200).json({ message: 'Your account successfully deleted' });
         }
