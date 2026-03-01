@@ -493,6 +493,7 @@ app.delete('/admin/:admin_id/service/:id', async (req, res) => {
         const service = await client.query(`SELECT * FROM services WHERE id = $1`, [id]);
         
         if (service.rows.length > 0) {
+            await client.query(`DELETE FROM bookings WHERE service_id = $1`, [id]);
             await client.query(`DELETE FROM services WHERE id = $1`, [id]);
             res.status(200).json({ message: 'Service successfully deleted' });
         } else {
