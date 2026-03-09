@@ -172,12 +172,15 @@ app.get('/:persons/:id', async (req, res) => {
     try {
         const adminUserExists = await client.query(`SELECT * FROM ${persons}s WHERE id = $1`, [id]);
         const adminUser = adminUserExists.rows[0];
+        const formattedDateData = adminUser.toISOString().split("T")[0];
 
         if (!adminUser) {
             return res.status(404).json({ error: `${persons} not found` });
         }
 
-        res.status(200).json(adminUser);
+        res.status(200).json(formattedDateData);
+
+        // res.status(200).json(adminUser);
     } catch (error) {
         console.log('Error:', error.message);
         res.status(500).json({ error: error.message });
