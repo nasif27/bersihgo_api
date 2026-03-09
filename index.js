@@ -566,7 +566,11 @@ app.get('/bookings/admin/:id', async (req, res) => {
 
         if (!booking_id && !user_id && !service_id && !booking_date) {
             const bookings = await client.query(`SELECT * FROM bookings`);
-            res.status(200).json(bookings.rows);
+            const formattedDateBookings = bookings.rows.map((booking) => ({                  // EXPERIMENTING
+                ...booking, booking_date: booking.booking_date.toISOString().split("T")
+            }));
+            res.status(200).json(formattedDateBookings);
+            // res.status(200).json(bookings.rows);
         } else if (booking_id && user_id && service_id && booking_date) {
             return res.status(400).json({ error: 'Access denied' });
         } else if (user_id || service_id || booking_date) {
