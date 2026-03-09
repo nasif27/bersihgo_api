@@ -567,7 +567,7 @@ app.get('/bookings/admin/:id', async (req, res) => {
         if (!booking_id && !user_id && !service_id && !booking_date) {
             const bookings = await client.query(`SELECT * FROM bookings`);
             const formattedDateBookings = bookings.rows.map((booking) => ({                  // EXPERIMENTING
-                ...booking, booking_date: booking.booking_date.toISOString().split("T")
+                ...booking, booking_date: booking.booking_date.toISOString().split("T")[0]
             }));
             res.status(200).json(formattedDateBookings);
             // res.status(200).json(bookings.rows);
