@@ -173,7 +173,7 @@ app.get('/:persons/:id', async (req, res) => {
         const adminUserExists = await client.query(`SELECT * FROM ${persons}s WHERE id = $1`, [id]);
         const adminUser = adminUserExists.rows[0];
         const formattedDateData = adminUser.map((data) => ({
-            ...data, booking_date: data.booking_date.toISOString().split("T")[0]
+            ...data, created_at: data.created_at.toISOString().split("T")[0]
         }));
 
         if (!adminUser) {
