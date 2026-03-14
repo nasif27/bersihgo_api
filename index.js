@@ -384,14 +384,14 @@ app.get('/users', async (req, res) => {
 app.post('/service/admin/:id', async (req, res) => {
     const client = await pool.connect();
     const { id } = req.params;
-    const { title, description } = req.body;
+    const { title, description, price_range, image_url } = req.body;
 
     try {
         // check admin existence
         const adminExists = await client.query(`SELECT * FROM admins WHERE id = $1`, [id]);
 
         if (adminExists.rows.length > 0) {
-            const post = await client.query(`INSERT INTO services (title, description, created_at, admin_id) VALUES ($1, $2, NOW(), $3) RETURNING *`, [title, description, id]);
+            const post = await client.query(`INSERT INTO services (title, description, price_range, image_url, created_at, admin_id) VALUES ($1, $2, $3, $4, NOW(), $5) RETURNING *`, [title, description, price_range, image_url, id]);
             // res.status(200).json({ message: 'Service successfully created' });
             res.status(200).json(post.rows[0]);
         } else {
@@ -458,7 +458,7 @@ app.put('/admin/:admin_id/service/:id', async (req, res) => {
     const { admin_id, id } = req.params;
 
     try {
-        const { title, description } = req.body;
+        const { title, description, price_range, image_url } = req.body;
         
         // Check admin existence
         const adminUser = await client.query(`SELECT * FROM admins WHERE id = $1`, [admin_id]);
@@ -468,7 +468,7 @@ app.put('/admin/:admin_id/service/:id', async (req, res) => {
         
         // If admin & service exist, allow admin to update/change
         if (adminUser.rows.length > 0 && service.rows.length > 0) {
-            const updatedService = await client.query(`UPDATE services SET title = $1, description = $2, updated_at = NOW() WHERE id = $3 RETURNING *`, [title, description, id]);
+            const updatedService = await client.query(`UPDATE services SET title = $1, description = $2, price_range = $3, image_url = $4, updated_at = NOW() WHERE id = $5 RETURNING *`, [title, description, price_range, image_url, id]);
             await client.query(`UPDATE bookings SET service_title = $1 WHERE service_id = $2`, [title, id]);
             res.status(200).json(updatedService.rows[0]);
             // res.status(200).json({ message: 'Service successfully updated' });
