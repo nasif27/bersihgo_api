@@ -97,7 +97,7 @@ app.post('/:options/signin', async (req, res) => {
         const passwordIsValid = await bcrypt.compare(password, adminUser.password);
 
         if (!passwordIsValid) {
-            return res.status(400).json({ auth: false, token: null });
+            return res.status(400).json({ auth: false, token: null, message: 'Incorrect password' });
         }
 
         // const adminUserCredentials = usernameEmail === ? adminUser.username : adminUser.email;
@@ -154,7 +154,7 @@ app.post('/:options/signin', async (req, res) => {
         //     { expiresIn: 86400 }
         // );
 
-        res.status(200).json({ auth: true, token: token });
+        res.status(200).json({ auth: true, token: token, message: 'Correct password' });
 
     } catch (error) {
         console.log('Error:', error.message);
