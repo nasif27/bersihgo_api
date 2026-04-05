@@ -90,14 +90,14 @@ app.post('/:options/signin', async (req, res) => {
 
         // if admin or user does not exist, return error
         if (!adminUser) {
-            return res.status(400).json({ message: 'Incorrect username or email or phone number' });
+            return res.status(400).json({ message: 'Incorrect username/email/phone number or password' });
         }
 
         // compare password from client side & DB side (hashed password)
         const passwordIsValid = await bcrypt.compare(password, adminUser.password);
 
         if (!passwordIsValid) {
-            return res.status(400).json({ auth: false, token: null, message: 'Incorrect password' });
+            return res.status(400).json({ auth: false, token: null, message: 'Incorrect username/email/phone number or password' });
         }
 
         // const adminUserCredentials = usernameEmail === ? adminUser.username : adminUser.email;
