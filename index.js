@@ -57,9 +57,19 @@ app.post('/:options/signup', async (req, res) => {
     
         const adminUserExists = await client.query(`SELECT * FROM ${options}s WHERE username = $1 OR email = $2 OR phone_number = $3`, [username, email, phoneNumber]);
     
-        if (adminUserExists.rows.length > 0) {
-            // res.json(adminUserExists.rows[0]);
-            res.status(400).json({ message: `This ${options} already exist` });
+        // if (adminUserExists.rows.length > 0) {
+        //     // res.json(adminUserExists.rows[0]);
+        //     res.status(400).json({ message: `This ${options} already exist` });
+        // }
+
+        for (const data of adminUserExists.rows) {
+            if (data.username === username) {
+                res.status(400).json({ message: 'This username already exist' });
+            } else if (data.email === email) {
+                res.status(400).json({ message: 'This email already exist' });
+            } else if (data.phone_number === phoneNumber) {
+                res.status(400).json({ message: 'This phone number already exist' });
+            }
         }
 
         const registerResult = await client.query(`INSERT INTO ${options}s (username, email, phone_number, password, created_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *`, [username, email, phoneNumber, hashedPassword]);
